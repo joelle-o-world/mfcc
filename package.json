@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/joelyjoel/mfcc/issues"
   },
-  "homepage": "https://github.com/joelyjoel/mfcc#readme"
+  "homepage": "https://github.com/joelyjoel/mfcc#readme",
+  "dependencies": {
+    "ts-dsp": "^1.0.0"
+  }
 }
