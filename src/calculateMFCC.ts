@@ -1,6 +1,7 @@
 import { Readable } from "stream";
 import {Windower, Hopper, FFT} from "ts-dsp";
 import { PowerSpectralDensity } from "./PowerSpectralDensity";
+import { MelFilterBank, MFCC } from "./Mel";
 
 declare interface MFCCConfig {
   /** Spacing of analysis frames (in samples). */
@@ -9,6 +10,13 @@ declare interface MFCCConfig {
   windowSize: number;
   /** Kind of window to use. */
   windowKind: "hamming";
+
+  sampleRate: number;
+
+  lowFrequency: number; // Hz
+  highFrequency: number; // Hz
+  /** How many mel filters should be used? */
+  bankCount: number;
 }
 
 function calculateMFCC(
@@ -20,6 +28,11 @@ function calculateMFCC(
     windowSize = 2056,
     hopSize = 441,
     windowKind = "hamming",
+    sampleRate = 44100,
+    lowFrequency = 300,
+    highFrequency = 8000,
+    bankCount = 26,
+
   } = params;
 
   // Set up FFT pipeline.
@@ -32,7 +45,16 @@ function calculateMFCC(
   hopper.end(audio);
 
   const psd = new PowerSpectralDensity;
-  fft.pipe(psd);
+  const filterBank = new MelFilterBank(
+    bankCount, 
+    lowFrequency, 
+    highFrequency, 
+    windowSize, 
+    sampleRate,
+  );
+  const mfcc = new MFCC;
+
+  fft.pipe(psd).pipe(filterBank).pipe(mfcc);
 }
 
 export {calculateMFCC};

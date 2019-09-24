@@ -4,7 +4,10 @@ import { SpectralBuffer } from "ts-dsp/src/SpectralBuffer";
 const sq = (x:number) => x*x;
 
 declare interface PSDChunk {
-
+  channelData: number[][];
+  sampleRate: number;
+  numberOfChannels: number;
+  time: number;
 }
 
 class PowerSpectralDensity extends Transform {
@@ -18,7 +21,7 @@ class PowerSpectralDensity extends Transform {
     callback:TransformCallback
   ) {
     const psd = [];
-    const scale = 1 / (spectrum.frameSize/2 * spectrum.sampleRate);
+    const scale = 1 / (spectrum.frameSize);// * spectrum.sampleRate);
     //                                   ^??
 
     // For each channel
@@ -28,7 +31,7 @@ class PowerSpectralDensity extends Transform {
       const channelPsd:number[] = [];
       psd[c] = channelPsd;
       for(let bin=0, i=0; i<data.length; ++bin, i+=2)
-        channelPsd[bin] = (sq(data[i]) + sq(data[i+1])) * scale
+        channelPsd[bin] = (sq(data[i]) + sq(data[i+1])) * scale;
     }
 
     callback(null, {
