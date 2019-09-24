@@ -1,0 +1,19 @@
+{
+  "name": "mfcc",
+  "version": "1.0.0",
+  "description": "Calculate MFCC (Mel-frequency Cepstral Coefficients) from mic input in the browser. (TypeScript) ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joelyjoel/mfcc.git"
+  },
+  "author": "Joely Joel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joelyjoel/mfcc/issues"
+  },
+  "homepage": "https://github.com/joelyjoel/mfcc#readme"
+}
