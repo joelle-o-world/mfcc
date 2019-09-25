@@ -1,5 +1,6 @@
-import { Readable } from "stream";
-import {Windower, Hopper, FFT} from "ts-dsp";
+import {Hopper} from "./Hopper";
+import {Windower} from "./Windower";
+import {FFT} from "./FFT";
 import { PowerSpectralDensity } from "./PowerSpectralDensity";
 import { MelFilterBank, MFCC } from "./Mel";
 

@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/joelyjoel/mfcc#readme",
   "dependencies": {
+    "audiobuffer": "^0.2.0",
     "dct": "^0.1.0",
-    "ts-dsp": "^1.0.0"
+    "fft.js": "^4.0.3"
   }
 }
