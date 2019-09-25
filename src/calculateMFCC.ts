@@ -4,6 +4,7 @@ import {FastFourierTransform} from "./FastFourierTransform";
 import { PowerSpectralDensity } from "./PowerSpectralDensity";
 import { MelFilterBank, MFCC } from "./Mel";
 import { Preemphasis } from "./Preemphasis";
+import { Lifter } from "./Lifter";
 
 declare interface MFCCConfig {
   /** the samplerate of the signal we are working with. */
@@ -92,10 +93,15 @@ function calculateMFCC(
     sampleRate: samplerate,
   });
   const mfcc = new MFCC({numcep});
+  const lifter = new Lifter(ceplifter, numcep)
 
-  fft.pipe(psd).pipe(filterBank).pipe(mfcc);
+  fft
+    .pipe(psd)
+    .pipe(filterBank)
+    .pipe(mfcc)
+    .pipe(lifter);
 
-  return mfcc
+  return lifter;
 }
 
 export {calculateMFCC, MFCCConfig};
