@@ -6,23 +6,23 @@ import { MelFilterBank, MFCC } from "./Mel";
 
 declare interface MFCCConfig {
   /** Spacing of analysis frames (in samples). */
-  hopSize: number;
+  hopSize?: number;
   /** Size of analysis frames (in samples). */
-  windowSize: number;
+  windowSize?: number;
   /** Kind of window to use. */
-  windowKind: "hamming";
+  windowKind?: "hamming";
 
-  sampleRate: number;
+  sampleRate?: number;
 
-  lowFrequency: number; // Hz
-  highFrequency: number; // Hz
+  lowFrequency?: number; // Hz
+  highFrequency?: number; // Hz
   /** How many mel filters should be used? */
-  bankCount: number;
+  bankCount?: number;
 }
 
 function calculateMFCC(
   audio:AudioBuffer,
-  params: MFCCConfig,
+  params: MFCCConfig = {},
 ) {
   // Destructure parameters,
   const {
@@ -35,6 +35,8 @@ function calculateMFCC(
     bankCount = 26,
 
   } = params;
+
+  console.log("Hop Size:", hopSize)
 
   // Set up FFT pipeline.
   const hopper = new Hopper(windowSize, hopSize);
@@ -56,6 +58,8 @@ function calculateMFCC(
   const mfcc = new MFCC;
 
   fft.pipe(psd).pipe(filterBank).pipe(mfcc);
+
+  return mfcc
 }
 
-export {calculateMFCC};
+export {calculateMFCC, MFCCConfig};
