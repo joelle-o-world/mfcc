@@ -12,10 +12,12 @@ function hzToMels(f: Hz):Mel {
   return 1125 * Math.log(1 + f/700);
 }
 
+/** Inverse function of `hzToMels(f)` */
 function melsToHz(m: Mel):Hz {
   return 700 * (Math.exp(m/1125) - 1)
 }
 
+/** Output chunk for MelFilterBand chunk transform stream. */
 interface MelFilterBankChunk {
   channelData: number[][];
   sampleRate: Hz;
@@ -23,8 +25,13 @@ interface MelFilterBankChunk {
   numberOfChannels: number;
 }
 
+declare type SpectralFilter = {
+  [key: number]: number;
+}
+
+/** Filter PowerSpectralDensity chunks to make Mel-band energies.  */
 class MelFilterBank extends Transform {
-  filters: number[][];
+  filters: SpectralFilter[];
 
   constructor(
     numberOfFilters:number = 26,
@@ -48,13 +55,13 @@ class MelFilterBank extends Transform {
     // Create filters
     this.filters = []
     for(let i=0; i+2<points.length; i++) {
-      let filter = [];
+      let filter:SpectralFilter = {};
       let a = points[i], b = points[i+1], c = points[i+2];
-      for(let bin=a; bin<b; ++bin)
+      for(let bin=a+1; bin<b; ++bin)
         filter[bin] = (bin - a)/(b-a);
       filter[b] = 1;
       for(let bin=b+1; bin<c; ++bin)
-        filter[bin] = (b - bin) / (c - b);
+        filter[bin] = (c - bin) / (c - b);
 
       this.filters[i] = filter;
     }
@@ -86,6 +93,15 @@ class MelFilterBank extends Transform {
   }
 }
 
+/** Output chunk format for MFCC transform stream. */
+declare interface MFCCChunk {
+  /** Cepstral coefficients for each audio channel. */
+  coffsByChannel: number[][];
+  /** Time (in samples) of the analysis window. */
+  time: number;
+}
+
+/** Transform MelFilterBank data into Mel Frequency Cepstral Coefficients. */
 class MFCC extends Transform {
   constructor() {
     super({objectMode:true});
@@ -97,12 +113,11 @@ class MFCC extends Transform {
     const coeffsByChannel = [];
     for(let c=0; c<chunk.numberOfChannels; ++c) {
       const logMelPowers = chunk.channelData[c].map(Math.log);
-      console.log(dct)
       coeffsByChannel[c] = dct(logMelPowers);
     }
 
     callback(null, {
-      channelData: coeffsByChannel,
+      coeffsByChannel: coeffsByChannel,
       time: chunk.time,
     })
   }
@@ -112,4 +127,5 @@ export {
   hzToMels,
   MelFilterBank,
   MFCC,
+  MFCCChunk,
 };
