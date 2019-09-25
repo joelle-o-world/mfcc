@@ -26,7 +26,7 @@ function calculateMFCC(
 ) {
   // Destructure parameters,
   const {
-    windowSize = 2048,
+    windowSize = 256,
     hopSize = 441,
     windowKind = "hamming",
     sampleRate = 44100,
@@ -36,7 +36,7 @@ function calculateMFCC(
 
   } = params;
 
-  console.log("Hop Size:", hopSize)
+  console.log("## SampleRate:", sampleRate);
 
   // Set up FFT pipeline.
   const hopper = new Hopper(windowSize, hopSize);

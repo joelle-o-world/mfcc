@@ -7,7 +7,8 @@ window.onload = function() {
   document.body.appendChild(input);
 }
 
-const audioctx = new AudioContext;
+
+const sampleRate = 8000;
 
 function handleFile(e:any) {
   if(!e.target)
@@ -18,19 +19,28 @@ function handleFile(e:any) {
     let reader = new FileReader();
     reader.onload = data => {
       let arrbuff = reader.result;
+      const audioctx = new OfflineAudioContext(1, 1, sampleRate);
       if(arrbuff instanceof ArrayBuffer)
         audioctx.decodeAudioData(arrbuff, (audio:AudioBuffer) => {
           handleAudio(audio);
         })
     }
     reader.readAsArrayBuffer(file);
-
   }
 }
 
+const controlVersion = [-10.9531314 ,  -0.08254892,  -0.61411686,   2.73524852,
+  3.05144807,   5.28675469,   1.46473103,   1.36508555,
+  4.5818183 ,   4.68330949,  -0.41958311,   2.24747888,
+ -1.51294501]
+
 function handleAudio(audio:AudioBuffer) {
-  let mfccStream = calculateMFCC(audio);
+  let mfccStream = calculateMFCC(audio, {sampleRate: audio.sampleRate});
   console.log(mfccStream);
 
-  mfccStream.on('data', console.log);
+  mfccStream.once('data', chunk => {
+    let coeffs = chunk.coeffsByChannel[0]
+    console.log("new script:", coeffs)
+    console.log("old script:", controlVersion)
+  });
 }
