@@ -35,7 +35,7 @@ const controlVersion = [-10.9531314 ,  -0.08254892,  -0.61411686,   2.73524852,
  -1.51294501]
 
 function handleAudio(audio:AudioBuffer) {
-  let mfccStream = calculateMFCC(audio, {sampleRate: audio.sampleRate});
+  let mfccStream = calculateMFCC(audio, {samplerate: audio.sampleRate});
   console.log(mfccStream);
 
   mfccStream.once('data', chunk => {

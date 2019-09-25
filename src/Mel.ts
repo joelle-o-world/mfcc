@@ -29,17 +29,25 @@ declare type SpectralFilter = {
   [key: number]: number;
 }
 
+declare interface MelFilterBankConfig {
+  sampleRate: Hz,
+  numberOfFilters?: number,
+  lowFrequency?: Hz,
+  highFrequency?:Hz,
+  windowSize?: number,
+}
+
 /** Filter PowerSpectralDensity chunks to make Mel-band energies.  */
 class MelFilterBank extends Transform {
   filters: SpectralFilter[];
 
-  constructor(
-    numberOfFilters:number = 26,
-    lowFrequency:Hz = 300, // Hz 
-    highFrequency:Hz = 8000, // Hz
-    windowSize: number = 256,
-    sampleRate: Hz = 44100,
-  ) {
+  constructor({
+    sampleRate,
+    numberOfFilters = 26,
+    lowFrequency = 300, // Hz 
+    highFrequency = 8000, // Hz
+    windowSize = 256,
+  }:MelFilterBankConfig) {
     super({objectMode:true});
     
     const highMel:Mel = hzToMels(highFrequency);
@@ -103,8 +111,13 @@ declare interface MFCCChunk {
 
 /** Transform MelFilterBank data into Mel Frequency Cepstral Coefficients. */
 class MFCC extends Transform {
-  constructor() {
+  numcep: number;
+  constructor({numcep}:{
+    /** number of cepstrum to return. */
+    numcep: number;
+  }) {
     super({objectMode:true});
+    this.numcep = numcep
   }
 
   _transform(
@@ -113,7 +126,7 @@ class MFCC extends Transform {
     const coeffsByChannel = [];
     for(let c=0; c<chunk.numberOfChannels; ++c) {
       const logMelPowers = chunk.channelData[c].map(Math.log);
-      coeffsByChannel[c] = dct(logMelPowers);
+      coeffsByChannel[c] = dct(logMelPowers).slice(0, this.numcep);
     }
 
     callback(null, {
