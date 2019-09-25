@@ -32,7 +32,5 @@ function handleAudio(audio:AudioBuffer) {
   let mfccStream = calculateMFCC(audio);
   console.log(mfccStream);
 
-  mfccStream.on('data', (e:any) => {
-    console.log(e)
-  })
+  mfccStream.on('data', console.log)
 }

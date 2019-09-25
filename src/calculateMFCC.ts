@@ -1,6 +1,6 @@
 import {Hopper} from "./Hopper";
 import {Windower} from "./Windower";
-import {FFT} from "./FFT";
+import {FastFourierTransform} from "./FastFourierTransform";
 import { PowerSpectralDensity } from "./PowerSpectralDensity";
 import { MelFilterBank, MFCC } from "./Mel";
 
@@ -26,7 +26,7 @@ function calculateMFCC(
 ) {
   // Destructure parameters,
   const {
-    windowSize = 2056,
+    windowSize = 2048,
     hopSize = 441,
     windowKind = "hamming",
     sampleRate = 44100,
@@ -41,7 +41,7 @@ function calculateMFCC(
   // Set up FFT pipeline.
   const hopper = new Hopper(windowSize, hopSize);
   const windower = new Windower(windowSize, windowKind);
-  const fft = new FFT(windowSize);
+  const fft = new FastFourierTransform(windowSize);
   hopper.pipe(windower).pipe(fft);
 
   // Feed audio to the hopper.

@@ -1,6 +1,6 @@
 import { Transform, TransformCallback } from "stream";
 import { PSDChunk } from "./PowerSpectralDensity";
-import * as dct from 'dct';
+import dct from 'dct';
 
 // Special number types to keep track of units
 type Mel = number;
@@ -97,13 +97,14 @@ class MFCC extends Transform {
     const coeffsByChannel = [];
     for(let c=0; c<chunk.numberOfChannels; ++c) {
       const logMelPowers = chunk.channelData[c].map(Math.log);
+      console.log(dct)
       coeffsByChannel[c] = dct(logMelPowers);
     }
 
-    return {
+    callback(null, {
       channelData: coeffsByChannel,
       time: chunk.time,
-    }
+    })
   }
 }
 
