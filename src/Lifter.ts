@@ -20,6 +20,7 @@ class Lifter extends Transform {
 
     callback(null, {
       coeffsByChannel: liftedCoeffsByChannel,
+      energyByChannel: chunk.energyByChannel,
       time: chunk.time,
     })
   }

@@ -20,6 +20,7 @@ function melsToHz(m: Mel):Hz {
 /** Output chunk for MelFilterBand chunk transform stream. */
 interface MelFilterBankChunk {
   channelData: number[][];
+  energyByChannel: number[];
   sampleRate: Hz;
   time: number;
   numberOfChannels: number;
@@ -30,11 +31,11 @@ declare type SpectralFilter = {
 }
 
 declare interface MelFilterBankConfig {
-  sampleRate: Hz,
-  numberOfFilters?: number,
-  lowFrequency?: Hz,
-  highFrequency?:Hz,
-  windowSize?: number,
+  sampleRate: Hz;
+  numberOfFilters?: number;
+  lowFrequency?: Hz;
+  highFrequency?:Hz;
+  windowSize?: number;
 }
 
 /** Filter PowerSpectralDensity chunks to make Mel-band energies.  */
@@ -94,6 +95,7 @@ class MelFilterBank extends Transform {
 
     callback(null, {
       channelData,
+      energyByChannel: psd.energyByChannel,
       sampleRate: psd.sampleRate,
       time: psd.time,
       numberOfChannels: psd.numberOfChannels,
@@ -104,14 +106,17 @@ class MelFilterBank extends Transform {
 /** Output chunk format for MFCC transform stream. */
 declare interface MFCCChunk {
   /** Cepstral coefficients for each audio channel. */
-  coffsByChannel: number[][];
+  coeffsByChannel: number[][];
+  energyByChannel: number[];
   /** Time (in samples) of the analysis window. */
   time: number;
 }
 
 /** Transform MelFilterBank data into Mel Frequency Cepstral Coefficients. */
 class MFCC extends Transform {
+
   numcep: number;
+
   constructor({numcep}:{
     /** number of cepstrum to return. */
     numcep: number;
@@ -131,6 +136,7 @@ class MFCC extends Transform {
 
     callback(null, {
       coeffsByChannel: coeffsByChannel,
+      energyByChannel: chunk.energyByChannel,
       time: chunk.time,
     })
   }

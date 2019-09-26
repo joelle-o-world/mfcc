@@ -2,9 +2,10 @@ import {Hopper} from "./Hopper";
 import {Windower} from "./Windower";
 import {FastFourierTransform} from "./FastFourierTransform";
 import { PowerSpectralDensity } from "./PowerSpectralDensity";
-import { MelFilterBank, MFCC } from "./Mel";
+import { MelFilterBank, MFCC, MFCCChunk } from "./Mel";
 import { Preemphasis } from "./Preemphasis";
 import { Lifter } from "./Lifter";
+import { Transform, Readable, TransformCallback } from "stream";
 
 declare interface MFCCConfig {
   /** the samplerate of the signal we are working with. */
@@ -60,7 +61,7 @@ function calculateMFCC(
     highfreq=samplerate/2, 
     preemph=0.97, 
     ceplifter=22, 
-    appendEnergy=true, 
+    appendEnergy=false, 
     winfunc="none"
   } = params;
 
@@ -101,7 +102,23 @@ function calculateMFCC(
     .pipe(mfcc)
     .pipe(lifter);
 
-  return lifter;
+  let lastTransform:Readable = lifter;
+
+
+  // Warning: This step directly edits the output of the Lifter for the sake of simplicity
+  if(appendEnergy) {
+    lastTransform = lifter.pipe(new Transform({
+      objectMode:true,
+      transform(chunk:MFCCChunk, enc:string, callback:TransformCallback) {
+        for(let c in chunk.coeffsByChannel) 
+          chunk.coeffsByChannel[c][0] = chunk.energyByChannel[c];
+
+        callback(null, chunk);
+      }
+    }))
+  }
+  
+  return lastTransform;
 }
 
 export {calculateMFCC, MFCCConfig};
